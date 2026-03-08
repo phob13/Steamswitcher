@@ -52,8 +52,9 @@ $listener         = New-Object HotkeyListener
 $listener.VbsPath = $vbsPath
 
 # Tray-Icon damit man sieht dass es laeuft
-$tray                      = New-Object System.Windows.Forms.NotifyIcon
-$tray.Icon                 = [System.Drawing.SystemIcons]::Application
+$tray      = New-Object System.Windows.Forms.NotifyIcon
+$iconFile  = Join-Path $dir 'icon.ico'
+$tray.Icon = if (Test-Path $iconFile) { New-Object System.Drawing.Icon($iconFile) } else { [System.Drawing.SystemIcons]::Application }
 $tray.Text                 = 'Steam Switcher  (Strg+Ende)'
 $tray.Visible              = $true
 $listener.Tray             = $tray
