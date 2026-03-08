@@ -12,7 +12,7 @@ A lightweight Steam account switcher for Windows — no re-login required.
 - Switches account by updating the Windows registry
 - Gracefully restarts Steam — no password re-entry needed
 - Borderless dark UI (Steam theme)
-- Global hotkey support via AutoHotkey (optional)
+- Global hotkey support (Ctrl+End) — no extra software needed, anti-cheat safe
 
 ## Requirements
 
@@ -39,16 +39,31 @@ A lightweight Steam account switcher for Windows — no re-login required.
 
 ## Changing the Hotkey
 
-Open `SteamSwitcher.ahk` in any text editor and change `^End` to your preferred key:
+Open `SteamSwitcherHotkey.ps1` in any text editor and find this line:
 
-| Symbol | Key |
-|--------|-----|
-| `^`    | Ctrl |
-| `!`    | Alt |
-| `+`    | Shift |
-| `#`    | Win |
+```
+public const uint VK_END = 0x23;
+```
 
-Examples: `^!s` = Ctrl+Alt+S, `#s` = Win+S
+Replace `0x23` with the virtual key code of your preferred key. Common codes:
+
+| Key | Code |
+|-----|------|
+| End | `0x23` |
+| Home | `0x24` |
+| F9 | `0x78` |
+| F10 | `0x79` |
+| F11 | `0x7A` |
+| F12 | `0x7B` |
+
+To change the modifier (default: Ctrl), find `MOD_CTRL = 0x0002` and replace it:
+
+| Modifier | Code |
+|----------|------|
+| Alt | `0x0001` |
+| Ctrl | `0x0002` |
+| Shift | `0x0004` |
+| Win | `0x0008` |
 
 ## How it works
 
