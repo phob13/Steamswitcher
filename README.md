@@ -29,7 +29,7 @@ A lightweight Steam account switcher for Windows — no re-login required.
 2. Press `Ctrl+End` anywhere to open the switcher
 3. To run at startup: press `Win+R` → type `shell:startup` → copy `SteamSwitcherHotkey.vbs` there
 
-> **Note:** The hotkey listener uses the native Windows `RegisterHotKey` API (plain PowerShell process). No AutoHotkey required — compatible with anti-cheat software.
+> **Note:** The hotkey listener uses the native Windows `RegisterHotKey` API (plain PowerShell process). Compatible with anti-cheat software.
 
 ## Usage
 
