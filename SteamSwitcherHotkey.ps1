@@ -6,6 +6,7 @@ $vbsPath = Join-Path $dir 'SteamSwitcher.vbs'
 
 Add-Type -ReferencedAssemblies 'System.Windows.Forms' @"
 using System;
+using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
@@ -16,19 +17,21 @@ public class HotkeyListener : Form {
     public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
     public const uint MOD_CTRL  = 0x0002;
+    public const uint MOD_SHIFT = 0x0004;
     public const uint VK_END    = 0x23;
     public const int  WM_HOTKEY = 0x0312;
 
     public string VbsPath;
     public NotifyIcon Tray;
+    public Mutex AppMutex;
 
     protected override void OnLoad(EventArgs e) {
         base.OnLoad(e);
         this.Visible       = false;
         this.ShowInTaskbar = false;
-        bool ok = RegisterHotKey(this.Handle, 1, MOD_CTRL, VK_END);
+        bool ok = RegisterHotKey(this.Handle, 1, MOD_CTRL | MOD_SHIFT, VK_END);
         if (!ok) {
-            MessageBox.Show("Hotkey (Strg+Ende) konnte nicht registriert werden.\nMoeglicherweise wird er von einem anderen Programm belegt.",
+            MessageBox.Show("Hotkey (Strg+Shift+Ende) konnte nicht registriert werden.\nMoeglicherweise wird er von einem anderen Programm belegt.",
                 "Steam Switcher Hotkey", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
@@ -43,25 +46,37 @@ public class HotkeyListener : Form {
     protected override void OnFormClosing(FormClosingEventArgs e) {
         UnregisterHotKey(this.Handle, 1);
         if (Tray != null) { Tray.Visible = false; Tray.Dispose(); }
+        if (AppMutex != null) { AppMutex.ReleaseMutex(); AppMutex.Dispose(); }
         base.OnFormClosing(e);
     }
 }
 "@
 
-$listener         = New-Object HotkeyListener
-$listener.VbsPath = $vbsPath
+# Single-Instance via Mutex
+$mutex = New-Object System.Threading.Mutex($false, 'SteamSwitcherHotkey')
+if (-not $mutex.WaitOne(0)) {
+    [System.Windows.Forms.MessageBox]::Show(
+        'Steam Switcher Hotkey laeuft bereits.', 'Steam Switcher',
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Information)
+    exit
+}
 
-# Tray-Icon damit man sieht dass es laeuft
+$listener           = New-Object HotkeyListener
+$listener.VbsPath   = $vbsPath
+$listener.AppMutex  = $mutex
+
+# Tray-Icon
 $tray      = New-Object System.Windows.Forms.NotifyIcon
 $iconFile  = Join-Path $dir 'icon.ico'
 $tray.Icon = if (Test-Path $iconFile) { New-Object System.Drawing.Icon($iconFile) } else { [System.Drawing.SystemIcons]::Application }
-$tray.Text                 = 'Steam Switcher  (Strg+Ende)'
-$tray.Visible              = $true
-$listener.Tray             = $tray
+$tray.Text = 'Steam Switcher  (Strg+Shift+Ende)'
+$tray.Visible = $true
+$listener.Tray = $tray
 
-# Tray-Kontextmenu: Beenden
-$menu    = New-Object System.Windows.Forms.ContextMenuStrip
-$item    = $menu.Items.Add('Beenden')
+# Kontextmenu
+$menu = New-Object System.Windows.Forms.ContextMenuStrip
+$item = $menu.Items.Add('Beenden')
 $item.Add_Click({ $listener.Close() })
 $tray.ContextMenuStrip = $menu
 

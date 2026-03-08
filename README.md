@@ -12,7 +12,7 @@ A lightweight Steam account switcher for Windows — no re-login required.
 - Switches account by updating the Windows registry
 - Gracefully restarts Steam — no password re-entry needed
 - Borderless dark UI (Steam theme)
-- Global hotkey support (Ctrl+End) — no extra software needed, anti-cheat safe
+- Global hotkey support (Ctrl+Shift+End) — no extra software needed, anti-cheat safe
 
 ## Requirements
 
@@ -24,9 +24,9 @@ A lightweight Steam account switcher for Windows — no re-login required.
 1. Download and extract the ZIP
 2. Double-click `SteamSwitcher.vbs` to launch
 
-**Optional — Global Hotkey (Ctrl+End), no extra software needed:**
+**Optional — Global Hotkey (Ctrl+Shift+End), no extra software needed:**
 1. Double-click `SteamSwitcherHotkey.vbs` — runs silently in the background
-2. Press `Ctrl+End` anywhere to open the switcher
+2. Press `Ctrl+Shift+End` anywhere to open the switcher
 3. To run at startup: press `Win+R` → type `shell:startup` → copy `SteamSwitcherHotkey.vbs` there
 
 > **Note:** The hotkey listener uses the native Windows `RegisterHotKey` API (plain PowerShell process). Compatible with anti-cheat software.
