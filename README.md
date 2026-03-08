@@ -19,17 +19,17 @@ A lightweight Steam account switcher for Windows — no re-login required.
 - Windows 10/11
 - Steam installed with at least one account saved ("Remember password")
 - PowerShell 5.1 (built into Windows)
-- [AutoHotkey v2](https://www.autohotkey.com/) *(optional, for global hotkey — v2 required)*
-
 ## Installation
 
 1. Download and extract the ZIP
 2. Double-click `SteamSwitcher.vbs` to launch
 
-**Optional — Global Hotkey (Ctrl+End):**
-1. Install [AutoHotkey v2](https://www.autohotkey.com/) (free)
-2. Double-click `SteamSwitcher.ahk`
-3. To run at startup: press `Win+R` → type `shell:startup` → copy `SteamSwitcher.ahk` there
+**Optional — Global Hotkey (Ctrl+End), no extra software needed:**
+1. Double-click `SteamSwitcherHotkey.vbs` — runs silently in the background
+2. Press `Ctrl+End` anywhere to open the switcher
+3. To run at startup: press `Win+R` → type `shell:startup` → copy `SteamSwitcherHotkey.vbs` there
+
+> **Note for gamers:** The hotkey listener uses the native Windows `RegisterHotKey` API (plain PowerShell process). No AutoHotkey required — compatible with anti-cheat software.
 
 ## Usage
 
