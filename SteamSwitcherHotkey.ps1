@@ -1,6 +1,9 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-# Verstecktes Fenster mit globalem Hotkey via Windows-API (kein AutoHotkey)
+# PSScriptRoot-Fallback falls leer (z.B. bei VBS-Start)
+$dir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+$vbsPath = Join-Path $dir 'SteamSwitcher.vbs'
+
 Add-Type @"
 using System;
 using System.Windows.Forms;
@@ -17,12 +20,17 @@ public class HotkeyListener : Form {
     public const int  WM_HOTKEY = 0x0312;
 
     public string VbsPath;
+    public NotifyIcon Tray;
 
     protected override void OnLoad(EventArgs e) {
         base.OnLoad(e);
         this.Visible       = false;
         this.ShowInTaskbar = false;
-        RegisterHotKey(this.Handle, 1, MOD_CTRL, VK_END);
+        bool ok = RegisterHotKey(this.Handle, 1, MOD_CTRL, VK_END);
+        if (!ok) {
+            MessageBox.Show("Hotkey (Strg+Ende) konnte nicht registriert werden.\nMoeglicherweise wird er von einem anderen Programm belegt.",
+                "Steam Switcher Hotkey", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
     }
 
     protected override void WndProc(ref Message m) {
@@ -34,11 +42,29 @@ public class HotkeyListener : Form {
 
     protected override void OnFormClosing(FormClosingEventArgs e) {
         UnregisterHotKey(this.Handle, 1);
+        if (Tray != null) { Tray.Visible = false; Tray.Dispose(); }
         base.OnFormClosing(e);
     }
 }
 "@
 
-$listener          = New-Object HotkeyListener
-$listener.VbsPath  = Join-Path $PSScriptRoot 'SteamSwitcher.vbs'
+$listener         = New-Object HotkeyListener
+$listener.VbsPath = $vbsPath
+
+# Tray-Icon damit man sieht dass es laeuft
+$tray                      = New-Object System.Windows.Forms.NotifyIcon
+$tray.Icon                 = [System.Drawing.SystemIcons]::Application
+$tray.Text                 = 'Steam Switcher  (Strg+Ende)'
+$tray.Visible              = $true
+$listener.Tray             = $tray
+
+# Tray-Kontextmenu: Beenden
+$menu    = New-Object System.Windows.Forms.ContextMenuStrip
+$item    = $menu.Items.Add('Beenden')
+$item.Add_Click({ $listener.Close() })
+$tray.ContextMenuStrip = $menu
+
+# Doppelklick auf Tray = Switcher oeffnen
+$tray.Add_DoubleClick({ Start-Process 'wscript.exe' -ArgumentList "`"$vbsPath`"" })
+
 [System.Windows.Forms.Application]::Run($listener)
