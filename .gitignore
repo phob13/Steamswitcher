@@ -1,0 +1,11 @@
+# Nur diese Dateien sollen im Repo sein:
+# SteamSwitcher.ps1
+# SteamSwitcher.vbs
+# SteamSwitcher.ahk
+# SteamSwitcher.bat
+# README.md
+
+# Keine persönlichen Daten
+*.log
+Thumbs.db
+desktop.ini
