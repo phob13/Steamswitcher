@@ -4,7 +4,7 @@ Add-Type -AssemblyName System.Windows.Forms
 $dir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $vbsPath = Join-Path $dir 'SteamSwitcher.vbs'
 
-Add-Type @"
+Add-Type -ReferencedAssemblies 'System.Windows.Forms' @"
 using System;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
